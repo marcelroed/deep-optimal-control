@@ -1,4 +1,4 @@
-# Notes from reading existing Matlab code for the paper
+# Notes from reading existing Matlab code for the paper - Matthias
 
 ## Code Structure
 All of the code is run from `RUN.m`, which runs some other scripts: `COMPUTE_RESULTS.m` and `CREATE_PLOTS.m`

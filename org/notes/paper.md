@@ -34,7 +34,4 @@ $$
 where $\partial_v f$ is the Jacobian of $f$ with respect to $v$.
 
 ### 2.2 The Adjoint Equation
-The adjoint of (10) is a system of ODE
-<span style="color: red;">
-Questions: How does (11) imply 
-</span>
+The adjoint of (10) is a system of ODEs for a variable $p(t)$ obtained assuming 
