@@ -104,7 +104,7 @@ venv.bak/
 .mypy_cache/
 
 # Document files
-*.pdf
+paper.pdf
 
 # Output from program
 groundwork/matthias/pics/
