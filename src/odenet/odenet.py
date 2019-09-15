@@ -1,4 +1,3 @@
-from itertools import product
 from tqdm import trange
 import torch
 import torch.nn as nn
@@ -83,7 +82,7 @@ class ODENet(nn.Module):
 
                 training_results.append(loss.item())
                 if not (i + 1) % 100:
-                    #print(training_results[-1])
+                    # print(f'Loss: {training_results[-1]}')
                     pass
 
 
