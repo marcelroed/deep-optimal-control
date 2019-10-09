@@ -6,8 +6,8 @@ from tqdm import tqdm
 
 def render_markdown(file_path: p.Path):
     """Render markdown to PDF, use same stem for filename."""
-    arguments = ['pandoc', str(file_path), '--pdf-engine=latexmk', '-o', str(file_path.parents[0]) + '\\' + str(file_path.stem) + '.pdf']
-    print(arguments)
+    arguments = ['pandoc', str(file_path), '--pdf-engine=latexmk', '-o',
+                 str(file_path.parents[0]) + '\\' + str(file_path.stem) + '.pdf']
     subprocess.call(arguments)
 
 
@@ -40,11 +40,15 @@ def is_older(file_1: p.Path, file_2: p.Path) -> bool:
 
 
 def render_recursively(path: p.Path) -> None:
-    for markdown_path in tqdm(find_with_ext(path, '.md'), desc='Rendering markdown files', unit='files'):
-        pdf = get_pdf(markdown_path)
-        if pdf is None or is_older(pdf, markdown_path):
-            # PDF either does not exist, or the one that does is older than the newest markdown file
-            render_markdown(markdown_path)
+    # Paths of all Markdown files where their PDF either does not exist or is older than the Markdown file.
+    to_render = [p for p, pdf in
+                 ((md_path, get_pdf(md_path)) for md_path in find_with_ext(path, '.md')) if
+                 pdf is None or is_older(pdf, p)]
+
+    # Render Markdown files
+    for markdown_path in tqdm(to_render, desc='Rendering markdown files', unit='files'):
+        # PDF either does not exist, or the one that does is older than the newest markdown file
+        render_markdown(markdown_path)
 
 
 if __name__ == '__main__':
