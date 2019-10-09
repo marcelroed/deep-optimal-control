@@ -103,6 +103,8 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+.idea
+
 # Document files
 paper.pdf
 
@@ -110,6 +112,5 @@ paper.pdf
 groundwork/matthias/pics/
 groundwork/brynjulf/LearnedData*/
 groundwork/brynjulf/RKfigs*/
-
 
 data/
