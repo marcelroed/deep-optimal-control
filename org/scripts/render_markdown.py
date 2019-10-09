@@ -49,5 +49,3 @@ def render_recursively(path: p.Path) -> None:
 
 if __name__ == '__main__':
     render_recursively(p.Path('../'))
-    # for file_path in tqdm.tqdm(find_with_ext(p.Path('../'), 'md')):
-    #     render_markdown(file_path)
