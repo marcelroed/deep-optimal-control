@@ -6,8 +6,8 @@ from tqdm import tqdm
 
 def render_markdown(file_path: p.Path):
     """Render markdown to PDF, use same stem for filename."""
-    arguments = ['pandoc', str(file_path), '--pdf-engine=latexmk', '-o',
-                 str(file_path.parents[0]) + '\\' + str(file_path.stem) + '.pdf']
+    arguments = ['pandoc', str(file_path), '-o',
+                 str(file_path.parents[0]) + '\\' + "_" + str(file_path.stem) + '.pdf']
     subprocess.call(arguments)
 
 
@@ -29,7 +29,7 @@ def get_pdf(file_path: p.Path) -> Optional[p.Path]:
     """Return associated pdf if it exists, else return None"""
     for file_in_folder in file_path.parent.glob('*'):
         # Look through local directory
-        if file_in_folder.stem == file_path.stem and file_in_folder.suffix == '.pdf':
+        if file_in_folder.stem == '_' + file_path.stem and file_in_folder.suffix == '.pdf':
             return file_in_folder
     return None
 
