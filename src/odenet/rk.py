@@ -38,5 +38,4 @@ class RKLayer(nn.Module):
         k = torch.zeros(c.shape)
         for i in range(k.shape[0]):
             k[i] = self.delta_t * self.transform(x + k[:i] * A[i, :i])
-
         return self.activation(x + b * k)

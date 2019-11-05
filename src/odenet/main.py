@@ -3,9 +3,8 @@ import numpy as np
 import src.data.generate_data as gd
 import src.odenet.odenet as odenet
 import torch
-#import src.settings
+# import src.settings
 from torch.utils.data import DataLoader
-
 
 if __name__ == '__main__':
     n_points, batch_size, num_workers = 100, 5, 2
