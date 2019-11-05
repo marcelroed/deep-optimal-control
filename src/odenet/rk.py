@@ -1,7 +1,5 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-from typing import List
 
 methods = {
     'euler': {
@@ -23,11 +21,10 @@ methods = {
 
 
 class RKLayer(nn.Module):
-    def __init__(self, in_out_size: int, activation, method='euler', interpolation='step'):
+    def __init__(self, in_out_size: int, method='euler', interpolation='step'):
         super().__init__()
         assert method in methods.keys(), f'Method {method} is not in {tuple(methods.keys())}.'
         self.method = methods[method]
-        self.activation = activation
         self.in_out_size = in_out_size
         self.transform = nn.Linear(in_out_size, in_out_size)
         self.delta_t = nn.Parameter(torch.Tensor(1))
@@ -35,7 +32,8 @@ class RKLayer(nn.Module):
     def forward(self, x: torch.Tensor):
         A, b, c = [self.method[key] for key in ('A', 'b', 'c')]
         # TODO: Interpolate f for x_n + c_ih
+
         k = torch.zeros(c.shape)
         for i in range(k.shape[0]):
             k[i] = self.delta_t * self.transform(x + k[:i] * A[i, :i])
-        return self.activation(x + b * k)
+        return x + b * k
