@@ -106,7 +106,6 @@ venv.bak/
 .idea
 
 # Document files
-paper.pdf
 
 # Output from program
 groundwork/matthias/pics/
