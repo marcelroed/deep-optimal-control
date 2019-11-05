@@ -10,7 +10,7 @@ if __name__ == '__main__':
     n_points, batch_size, num_workers = 100, 5, 2
     data, labels = gd.generate_squares(n_points)
     print(labels)
-    net: odenet.ODENet = odenet.ODENet((2,), 5)
+    net: odenet.EulerNet = odenet.EulerNet((2,), 5)
     net.train_network(data, labels, 150)
     transformed = torch.cat([net.forward(data[:, i], False) for i in range(data.size()[1])]).cpu().detach().numpy()
     labels = labels.cpu().detach().numpy()
