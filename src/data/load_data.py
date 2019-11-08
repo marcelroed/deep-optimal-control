@@ -2,6 +2,9 @@ from typing import *
 from torch.utils.data import Dataset
 from torchvision.datasets import MNIST
 import torchvision.transforms
+import os
+
+data_dir = os.path.join(os.path.dirname(__file__), '../../data')
 
 
 def get_mnist(data_loader: bool = False) -> Tuple[Dataset, Dataset]:
@@ -15,12 +18,12 @@ def get_mnist(data_loader: bool = False) -> Tuple[Dataset, Dataset]:
     Returns: (training set, test set)
 
     """
-    train = MNIST('../../data', train=True, download=True, transform=torchvision.transforms.Compose(
+    train = MNIST(data_dir, train=True, download=True, transform=torchvision.transforms.Compose(
         [torchvision.transforms.ToTensor(),
          # torchvision.transforms.Normalize((0.1307,), (0.3081,))
          ]))
 
-    test = MNIST('../../data', train=False, download=True, transform=torchvision.transforms.Compose(
+    test = MNIST(data_dir, train=False, download=True, transform=torchvision.transforms.Compose(
         [torchvision.transforms.ToTensor(),
          # torchvision.transforms.Normalize((0.1307,), (0.3081,))
          ]))
