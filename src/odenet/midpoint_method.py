@@ -1,21 +1,23 @@
 from typing import Tuple, Optional, Union
 from numpy import prod
 import torch
+from torch.utils.data.dataloader import DataLoader
 import torch.nn as nn
-from src.settings import *
+from tqdm import tnrange, tqdm_notebook
 
-from src.settings import config
+
+# from src.settings import config
 
 
 class MidPointNetwork(nn.Module):
-    def __init__(self, layers: int, in_shape: Union[int, Tuple[int]], tolerance: float = 1e-1, max_iter: int = 100):
+    def __init__(self, layers: int, in_shape: Union[int, Tuple[int]], tolerance: float = 1e-6, max_iter: int = 10):
         super().__init__()
         self.features: int = int(prod(in_shape))
         self.tol = tolerance
         self.max_iter = max_iter
 
-        self.hs = nn.Parameter(torch.randn(layers - 1).uniform_(0.2, 1))
-        print('hs:', self.hs)
+        # self.hs = nn.Parameter(torch.randn(layers - 1).uniform_(0.2, 1))
+        self.hs = torch.ones(layers - 1)
         self.transforms = nn.ModuleList([nn.Linear(self.features, self.features) for _ in range(layers - 1)])
 
     def forward(self, x):
@@ -29,22 +31,59 @@ class MidPointNetwork(nn.Module):
 
             # Iterate
             iters = 0
-            while iters == 0 or (torch.norm(y_cur - y_prev) > self.tol and iters < self.max_iter):
-                y_cur = y_prev + self.hs[n] * self.transforms[n]((y_prev + y_cur)/2)
+            while iters == 0 or iters < self.max_iter:
                 iters += 1
-            print(iters)
-            y_prev = y_cur
+                y_cur = y_lastiter + self.hs[n] * torch.tanh(self.transforms[n]((y_cur + y_lastiter)/2))
 
-        return y_prev
+                error_estimate = torch.norm(y_cur - y_prev)
+                if error_estimate < self.tol:
+                    break
+                y_prev = y_cur
+
+        return y_prev.log_softmax(dim=1)
+
+    def train_network(self, train_dl: DataLoader, epochs: int = 1, lr: float = 0.005):
+        optimizer = torch.optim.Adam(self.parameters(), lr=lr)
+        loss_function = nn.NLLLoss()
+
+        training_results = []
+        for epoch in tnrange(epochs):
+            for i, batch in enumerate(train_dl):
+                x_batch, y_batch = batch
+                y_batch = y_batch.long()
+
+                # Reset optimizer
+                optimizer.zero_grad()
+
+                # Forward, backward then optimize
+                outputs = self(x_batch)
+                loss = loss_function(outputs, y_batch)
+
+                loss.backward()
+                optimizer.step()
+
+                training_results.append(loss.item())
+
+        return training_results
+
+    def predict_loader(self, test_loader: DataLoader):
+        results = []
+        for batch in test_loader:
+            results.append(self.predict(batch))
+        return torch.cat(results, dim=0)
+
+    def predict(self, batch):
+        with torch.no_grad():
+            return self.forward(batch)
 
 
 if __name__ == '__main__':
-    config['device'] = 'cpu'
+    #config['device'] = 'cpu'
     torch.autograd.set_detect_anomaly(True)
 
-    net = MidPointNetwork(5, 2)
+    net = MidPointNetwork(5, 700)
     print(list(net.parameters()))
-    inp, out = torch.Tensor([1., 2.]).reshape((1, 2)), torch.Tensor([1., 2.]).reshape((1, 2))
+    inp, out = torch.randn(700), torch.randn(700)
     result = net.forward(inp)
     print(result)
     loss_func = torch.nn.MSELoss()

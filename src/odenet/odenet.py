@@ -1,5 +1,5 @@
 from typing import *
-from tqdm import trange
+from tqdm import tnrange, tqdm_notebook
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -69,7 +69,7 @@ class EulerNet(nn.Module):
         loss_function = nn.NLLLoss()
         optimizer = optim.Adam(self.parameters(), lr=lr)
         training_results = []
-        for epoch in trange(epochs):
+        for epoch in tnrange(epochs):
             for i, batch in enumerate(train_loader):
                 x_batch, y_batch = map(lambda x: x.to(device), batch)
                 # Reset optimizer
@@ -98,6 +98,10 @@ class EulerNet(nn.Module):
             accuracy = correct_predictions / test_cases
             return accuracy
 
+    def predict(self, batch):
+        with torch.no_grad():
+            return self.forward(batch)
+
 
 class ODENet(nn.Module):
     """
@@ -114,12 +118,13 @@ class ODENet(nn.Module):
         super(ODENet, self).__init__()
         self.input_shape = input_shape
         self.input_size: int = np.prod(input_shape)
-        self.layers = [RKLayer(self.input_size, method='euler')]
+        self.layers = [RKLayer(self.input_size, method=rk_method)]
         if reduce_to is not None:
             self.layers.append(nn.Linear(self.input_size, np.prod(reduce_to)))
 
         for i, layer in enumerate(self.layers):
             setattr(self, f'{layer.__class__.__name__}{i}', layer)
+
         self.activation = torch.relu
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -156,7 +161,7 @@ class ODENet(nn.Module):
         loss_function = nn.NLLLoss()
         optimizer = optim.Adam(self.parameters(), lr=lr)
         training_results = []
-        for epoch in trange(epochs):
+        for epoch in tnrange(epochs):
             for i, batch in enumerate(train_loader):
                 x_batch, y_batch = map(lambda x: x.to(device), batch)
                 # Reset optimizer
